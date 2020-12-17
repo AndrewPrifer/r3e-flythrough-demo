@@ -1,8 +1,14 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { Canvas } from "react-three-fiber";
 import { editable as e, configure } from "react-three-editable";
 import EditableCurve from "./EditableCurve";
-import { PerspectiveCamera, useGLTF, Environment } from "@react-three/drei";
+import {
+  PerspectiveCamera,
+  useGLTF,
+  Environment,
+  useAnimations,
+  Loader,
+} from "@react-three/drei";
 import useAnimateAlongCurve from "./useAnimateAlongCurve";
 import useWobble from "./useWobble";
 import useMouseLookAround from "./useMouseLookAround";
@@ -16,7 +22,7 @@ const bind = configure({
 });
 
 const Scene = () => {
-  const { scene: cityObject } = useGLTF("city/scene.gltf");
+  const { scene: cityObject, animations } = useGLTF("city.glb");
   const { scene: balloonObject } = useGLTF("balloon/scene.gltf");
 
   const cameraRef = useMouseLookAround();
@@ -27,11 +33,21 @@ const Scene = () => {
     keepLevel: true,
   });
 
+  const { ref: animRef, actions, names } = useAnimations(animations);
+  useEffect(() => {
+    actions[names[0]].play();
+  }, [actions, names]);
+
   return (
     <>
       <e.directionalLight uniqueName="Sun" color="#FDE68A" intensity={1.5} />
       <EditableCurve size={10} ref={curveRef} uniqueName="Curve" />
-      <e.primitive object={cityObject} uniqueName="City" editableType="mesh" />
+      <e.primitive
+        ref={animRef}
+        object={cityObject}
+        uniqueName="City"
+        editableType="mesh"
+      />
 
       {/* You can compose editable and non-editable objects in whatever way you want,
           which lets you compose programmatic and static transforms easily*/}
@@ -50,21 +66,25 @@ const Scene = () => {
 
 export default function App() {
   return (
-    <Canvas
-      onCreated={({ gl, scene }) => {
-        // Local r3e settings, for this canvas only
-        bind({
-          state: editableState,
-          editorCamera: { position: [150, 150, 150] },
-        })({ gl, scene });
+    <>
+      <Canvas
+        onCreated={({ gl, scene }) => {
+          // Local r3e settings, for this canvas only
+          bind({
+            state: editableState,
+            editorCamera: { position: [150, 150, 150] },
+          })({ gl, scene });
 
-        gl.setClearColor("#93c5fd");
-      }}
-      gl={{ logarithmicDepthBuffer: true }}
-    >
-      <Suspense fallback={null}>
-        <Scene />
-      </Suspense>
-    </Canvas>
+          gl.setClearColor("#93c5fd");
+        }}
+        gl={{ logarithmicDepthBuffer: true }}
+      >
+        <Suspense fallback={null}>
+          <Scene />
+        </Suspense>
+      </Canvas>
+
+      <Loader />
+    </>
   );
 }
