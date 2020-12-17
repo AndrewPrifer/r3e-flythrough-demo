@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3a6de857-9b50-4719-a670-b6194aed3e80" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/public/city.glb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/editableState.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/editableState.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +46,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1608128289953</updated>
-      <workItem from="1608128293475" duration="32843000" />
+      <workItem from="1608128293475" duration="40381000" />
     </task>
     <task id="LOCAL-00001" summary="Complete demo">
       <created>1608215505858</created>
@@ -54,7 +55,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608215505858</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Replace city with glb, add animations, add loader">
+      <created>1608227539415</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1608227539415</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -73,7 +81,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Complete demo" />
-    <option name="LAST_COMMIT_MESSAGE" value="Complete demo" />
+    <MESSAGE value="Replace city with glb, add animations, add loader" />
+    <option name="LAST_COMMIT_MESSAGE" value="Replace city with glb, add animations, add loader" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

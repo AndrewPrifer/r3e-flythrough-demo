@@ -23,6 +23,29 @@
         ]
       }
     },
+    "Curve": {
+      "type": "group",
+      "properties": {
+        "transform": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
     "Curve handle 0": {
       "type": "mesh",
       "properties": {
@@ -322,7 +345,7 @@
         ]
       }
     },
-    "Curve": {
+    "Static Camera": {
       "type": "group",
       "properties": {
         "transform": [
@@ -338,9 +361,9 @@
           0,
           1,
           0,
-          0,
-          0,
-          0,
+          111.50373059720366,
+          193.79834307634036,
+          -45.25547715140469,
           1
         ]
       }

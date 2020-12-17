@@ -1,5 +1,6 @@
-import React, { Suspense, useEffect } from "react";
-import { Canvas } from "react-three-fiber";
+import React, { Suspense, useEffect, useState, useRef } from "react";
+import { Vector3 } from "three";
+import { Canvas, useFrame } from "react-three-fiber";
 import { editable as e, configure } from "react-three-editable";
 import EditableCurve from "./EditableCurve";
 import {
@@ -21,26 +22,45 @@ const bind = configure({
   localStorageNamespace: "Curve Demo",
 });
 
-const Scene = () => {
+const Scene = ({ riding }) => {
   const { scene: cityObject, animations } = useGLTF("city.glb");
   const { scene: balloonObject } = useGLTF("balloon/scene.gltf");
 
+  // Allow the balloon camera to look around
   const cameraRef = useMouseLookAround();
+
+  // Wobble the balloon a bit as if wind were blowing
   const balloonRef = useWobble({ xFreq: 0.4, yFreq: 0.3 });
-  const { objectRef, curveRef } = useAnimateAlongCurve({
+
+  // Move the balloon stuff along a curve
+  const { objectRef: balloonStuffRef, curveRef } = useAnimateAlongCurve({
     lookAhead: 40,
     loopTime: 120000,
     keepLevel: true,
   });
 
+  // Apply the city's loaded animations in a loop
   const { ref: animRef, actions, names } = useAnimations(animations);
   useEffect(() => {
     actions[names[0]].play();
   }, [actions, names]);
 
+  // Make our static camera always look at the balloon
+  const staticCameraRef = useRef();
+  useFrame(() => {
+    if (staticCameraRef.current && balloonRef.current) {
+      const lookAt = new Vector3();
+      balloonRef.current.getWorldPosition(lookAt);
+
+      staticCameraRef.current.lookAt(lookAt);
+    }
+  });
+
   return (
     <>
+      {/* Sun */}
       <e.directionalLight uniqueName="Sun" color="#FDE68A" intensity={1.5} />
+      {/* The curve the balloon is following */}
       <EditableCurve size={10} ref={curveRef} uniqueName="Curve" />
       <e.primitive
         ref={animRef}
@@ -49,24 +69,36 @@ const Scene = () => {
         editableType="mesh"
       />
 
-      {/* You can compose editable and non-editable objects in whatever way you want,
-          which lets you compose programmatic and static transforms easily*/}
-      <group ref={objectRef}>
+      {/* You can compose editable and non-editable objects in whatever way you want. With great power... */}
+      <group ref={balloonStuffRef}>
         <e.group uniqueName="Balloon">
           <primitive ref={balloonRef} object={balloonObject} />
         </e.group>
         <e.group uniqueName="Camera">
-          <PerspectiveCamera makeDefault far={30000} ref={cameraRef} />
+          <PerspectiveCamera makeDefault={riding} far={30000} ref={cameraRef} />
         </e.group>
       </group>
+      <e.group uniqueName="Static Camera">
+        <PerspectiveCamera ref={staticCameraRef} makeDefault={!riding} />
+      </e.group>
+
       <Environment files="palermo.hdr" />
     </>
   );
 };
 
 export default function App() {
+  const [riding, setRiding] = useState(false);
+
   return (
     <>
+      {/* Our minimal but good-lookin' interface */}
+      <div className={`ui ${riding ? "ride" : ""}`}>
+        <button onClick={() => setRiding(!riding)} className="ui--lets-ride">
+          {riding ? "I'd rather just watch." : "Let's ride!"}
+        </button>
+      </div>
+
       <Canvas
         onCreated={({ gl, scene }) => {
           // Local r3e settings, for this canvas only
@@ -80,10 +112,9 @@ export default function App() {
         gl={{ logarithmicDepthBuffer: true }}
       >
         <Suspense fallback={null}>
-          <Scene />
+          <Scene riding={riding} />
         </Suspense>
       </Canvas>
-
       <Loader />
     </>
   );
