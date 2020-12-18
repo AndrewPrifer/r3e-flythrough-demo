@@ -1,6 +1,5 @@
-import React, { Suspense, useEffect, useState, useRef } from "react";
-import { Vector3 } from "three";
-import { Canvas, useFrame } from "react-three-fiber";
+import React, { Suspense, useEffect, useState } from "react";
+import { Canvas } from "react-three-fiber";
 import { editable as e, configure } from "react-three-editable";
 import EditableCurve from "./EditableCurve";
 import {
@@ -10,9 +9,11 @@ import {
   useAnimations,
   Loader,
 } from "@react-three/drei";
+import mergeRefs from "react-merge-refs";
 import useAnimateAlongCurve from "./useAnimateAlongCurve";
 import useWobble from "./useWobble";
 import useMouseLookAround from "./useMouseLookAround";
+import useLookAt from "./useLookAt";
 
 // This is our exported editable state
 import editableState from "./editableState.json";
@@ -27,10 +28,10 @@ const Scene = ({ riding }) => {
   const { scene: balloonObject } = useGLTF("balloon/scene.gltf");
 
   // Allow the balloon camera to look around
-  const cameraRef = useMouseLookAround();
+  const balloonCameraLookAroundRef = useMouseLookAround();
 
   // Wobble the balloon a bit as if wind were blowing
-  const balloonRef = useWobble({ xFreq: 0.4, yFreq: 0.3 });
+  const balloonWobbleRef = useWobble({ xFreq: 0.4, yFreq: 0.3 });
 
   // Move the balloon stuff along a curve
   const { objectRef: balloonStuffRef, curveRef } = useAnimateAlongCurve({
@@ -46,15 +47,11 @@ const Scene = ({ riding }) => {
   }, [actions, names]);
 
   // Make our static camera always look at the balloon
-  const staticCameraRef = useRef();
-  useFrame(() => {
-    if (staticCameraRef.current && balloonRef.current) {
-      const lookAt = new Vector3();
-      balloonRef.current.getWorldPosition(lookAt);
-
-      staticCameraRef.current.lookAt(lookAt);
-    }
-  });
+  const {
+    eyeRef: staticCameraLookAtRef,
+    targetRef: balloonLookAtRef,
+  } = useLookAt();
+  const staticCameraLookAroundRef = useMouseLookAround({ magnitude: 0.2 });
 
   return (
     <>
@@ -72,16 +69,28 @@ const Scene = ({ riding }) => {
       {/* You can compose editable and non-editable objects in whatever way you want. With great power... */}
       <group ref={balloonStuffRef}>
         <e.group uniqueName="Balloon">
-          <primitive ref={balloonRef} object={balloonObject} />
+          <primitive
+            ref={mergeRefs([balloonWobbleRef, balloonLookAtRef])}
+            object={balloonObject}
+          />
         </e.group>
         <e.group uniqueName="Camera">
-          <PerspectiveCamera makeDefault={riding} far={30000} ref={cameraRef} />
+          <PerspectiveCamera
+            makeDefault={riding}
+            far={30000}
+            ref={balloonCameraLookAroundRef}
+          />
         </e.group>
       </group>
-      <e.group uniqueName="Static Camera">
-        <PerspectiveCamera ref={staticCameraRef} makeDefault={!riding} />
+      <e.group uniqueName="Static Camera" ref={staticCameraLookAtRef}>
+        {/* The outer group's rotation is driven by lookAt, so we need this extra group for some manual adjust */}
+        <e.group uniqueName="Static Camera rotation adjust">
+          <PerspectiveCamera
+            ref={staticCameraLookAroundRef}
+            makeDefault={!riding}
+          />
+        </e.group>
       </e.group>
-
       <Environment files="palermo.hdr" />
     </>
   );

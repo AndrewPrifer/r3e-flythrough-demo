@@ -11,6 +11,7 @@
     "prettier": "^2.2.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-merge-refs": "^1.1.0",
     "react-scripts": "4.0.1",
     "react-three-editable": "^0.8.1-5",
     "react-three-fiber": "^5.3.10",
